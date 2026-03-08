@@ -1,13 +1,6 @@
-﻿Django>=5.0.3,<6.0
-keras>=3.0.0,<=3.12.1
+﻿keras>=3.0.0
 torch>=2.0.0
 torchvision>=0.15.0
-numpy>=1.26.0,<2.3.0
-networkx>=3.0.0,<=3.4.2
+numpy>=1.26.0
 pillow>=10.0.0
-gunicorn>=20.0.0
-whitenoise>=6.0.0
-h5py>=3.0.0
-absl-py>=2.0.0
-PyMySQL>=1.0.0
-typing_extensions>=4.0.0
+gradio>=4.0.0
