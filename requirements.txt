@@ -1,6 +1,6 @@
 ﻿absl-py==2.4.0
 asgiref==3.11.1
-Django==6.0.3
+Django==5.0.3
 filelock==3.25.0
 fsspec==2026.2.0
 gunicorn==25.1.0
