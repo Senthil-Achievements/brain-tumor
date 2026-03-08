@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor Classification</title>
+    <style>
+        /* Reset and Body Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Container Styling */
+        .container {
+            max-width: 600px;
+            width: 90%;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Heading and Text Styling */
+        h1 {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 20px;
+            color: #d1e0f1;
+        }
+
+        /* File Input and Button */
+        input[type="file"] {
+            display: none;
+        }
+        .custom-file-upload {
+            padding: 10px 20px;
+            background: #f093fb;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .custom-file-upload:hover {
+            background: #f5576c;
+        }
+        .button {
+            padding: 12px 24px;
+            background: #43cea2;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .button:hover {
+            background: #36d1dc;
+        }
+
+        /* Image Styling */
+        #uploadedImage {
+            max-width: 75%;
+            height: 75%;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        /* Result Display */
+        #result {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1em;
+            color: #ffffff;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        /* Treatment Styling */
+        .treatment {
+            font-weight: bold;
+            font-size: 15px;
+            margin-top: 10px;
+            white-space: pre-line;
+            color:red;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    {% csrf_token %}
+<div class="container">
+    <h1>Brain Tumor Prediction</h1>
+    <p>Upload an MRI scan to predict the type of tumor and receive a diagnosis.</p>
+
+    <!-- File upload form -->
+    <label class="custom-file-upload">
+        <input type="file" id="imageUpload" accept="image/*">
+        Choose an Image
+    </label>
+    <button class="button" onclick="submitImage()">Predict Tumor Type</button>
+
+    <!-- Display uploaded image -->
+    <div>
+        <img id="uploadedImage" src="#" alt="Uploaded Image" style="display:none;">
+    </div>
+
+    <!-- Result display -->
+    <div id="result"></div>
+</div>
+
+<script>
+    // Function to retrieve CSRF token from the HTML meta tag
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    function submitImage() {
+        const imageInput = document.getElementById('imageUpload').files[0];
+        if (!imageInput) {
+            alert('Please upload an image.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('image', imageInput);
+
+        // Display uploaded image
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const uploadedImage = document.getElementById('uploadedImage');
+            uploadedImage.src = e.target.result;
+            uploadedImage.style.display = 'block';
+        };
+        reader.readAsDataURL(imageInput);
+
+        // Send image to server and display result
+        fetch('/predict', {  // Assumes you have a /predict endpoint
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('result').innerHTML = `
+                    <h3>Prediction: ${data.predicted_class}</h3>
+                    <p>Confidence: ${data.confidence_score.toFixed(2)}%</p>
+                    <p class="treatment">Diagnosis: ${data.diagnosis}</p>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while processing the image.');
+        });
+    }
+</script>
+
+</body>
+</html>
+
+
